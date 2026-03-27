@@ -1,8 +1,10 @@
 {
+  "/teacher-dashboard/page": "app/teacher-dashboard/page.js",
+  "/contact/page": "app/contact/page.js",
+  "/teacher/create-test/page": "app/teacher/create-test/page.js",
+  "/signup/page": "app/signup/page.js",
+  "/courses/page": "app/courses/page.js",
   "/dashboard/page": "app/dashboard/page.js",
   "/page": "app/page.js",
-  "/courses/page": "app/courses/page.js",
-  "/live-classes/page": "app/live-classes/page.js",
-  "/teacher-dashboard/page": "app/teacher-dashboard/page.js",
-  "/signup/page": "app/signup/page.js"
+  "/login/page": "app/login/page.js"
 }

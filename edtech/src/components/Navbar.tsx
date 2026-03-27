@@ -43,6 +43,7 @@ export default function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const isLight = theme === 'light';
+  const dashboardHref = user?.role === 'teacher' ? '/teacher-dashboard' : '/dashboard';
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -151,8 +152,8 @@ export default function Navbar() {
             </motion.button>
             {user ? (
               <>
-                <Link href="/dashboard" className="btn-secondary text-sm py-2 px-4 border border-white/10">
-                  Dashboard
+                <Link href={dashboardHref} className="btn-secondary text-sm py-2 px-4 border border-white/10">
+                  {user.role === 'teacher' ? 'Teacher Dashboard' : 'Dashboard'}
                 </Link>
                 <div className="relative group">
                   <button className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-colors">
@@ -165,6 +166,13 @@ export default function Navbar() {
                     <div className="px-4 py-2 border-b border-white/10 mb-2">
                       <p className="text-sm font-semibold text-white truncate">{user.name}</p>
                       <p className="text-xs text-[#8080a0] truncate">{user.email}</p>
+                      <span className={`inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+                        user.role === 'teacher'
+                          ? 'bg-[#D4AF37]/20 text-[#D4AF37]'
+                          : 'bg-[#C084FC]/20 text-[#C084FC]'
+                      }`}>
+                        {user.role === 'teacher' ? '🏫 Teacher' : '🎓 Student'}
+                      </span>
                     </div>
                     <button onClick={logout} className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-white/5 transition-colors">
                       Sign Out
@@ -321,7 +329,9 @@ export default function Navbar() {
                       <div className="text-xs text-[#8080a0]">{user.email}</div>
                     </div>
                   </div>
-                  <Link href="/dashboard" className="btn-secondary w-full justify-center text-white border border-white/10">Dashboard</Link>
+                  <Link href={dashboardHref} className="btn-secondary w-full justify-center text-white border border-white/10">
+                    {user.role === 'teacher' ? 'Teacher Dashboard' : 'Dashboard'}
+                  </Link>
                   <button onClick={logout} className="btn-secondary w-full justify-center text-red-400 border border-white/10">Sign Out</button>
                 </>
               ) : (

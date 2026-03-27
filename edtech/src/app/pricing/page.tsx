@@ -17,7 +17,7 @@ const faqs = [
 
 export default function PricingPage() {
   const { data, isLoading } = useSWR('/subscriptions', fetcher);
-  const plans = data?.subscriptions || [];
+  const plans = data?.plans || [];
 
   return (
     <>

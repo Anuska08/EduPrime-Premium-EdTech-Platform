@@ -10,30 +10,27 @@ const fetcher = (url: string) => api.get(url).then(res => res.data);
 
 export default function LiveClassesPage() {
   const { data, isLoading } = useSWR('/live-classes', fetcher);
-  const classes = data?.classes || [];
+  const classes = data?.liveClasses || [];
 
-  // Determine currently live class based on scheduledAt and current time (assuming classes are 60-120 mins long)
-  // For simplicity, let's treat the first class happening within the last 1 hour or next 30 mins as "Live Now"
-  // or maybe the backend just gives scheduled time, we filter.
-  // Actually, let's just use the closest one if it's within a 2-hour window.
+  // Determine currently live class based on scheduledAt and current time
   const now = new Date().getTime();
   
   const formattedClasses = classes.map((c: any) => {
     const time = new Date(c.scheduledAt).getTime();
-    const isLive = time <= now + (15 * 60 * 1000) && time >= now - (120 * 60 * 1000); // Live if starts in 15 mins or started within 2 hours
+    const isLiveNow = time <= now + (15 * 60 * 1000) && time >= now - ((c.duration || 60) * 60 * 1000); // Live if starts in 15 mins or started within duration
     return {
       ...c,
       time: new Date(c.scheduledAt),
-      duration: '90 min', // Mock duration since backend model doesn't store this, but real app might
+      duration: `${c.duration || 60} min`,
       level: 'All Levels',
-      isLive,
-      enrolled: Math.floor(Math.random() * 2000) + 1000,
-      max: 5000,
+      isLive: c.isLive || isLiveNow,
+      enrolled: Math.floor(Math.random() * 2000) + 1000, // mock enrolled for UI
+      max: c.maxAttendees || 5000,
     };
   }).sort((a: any, b: any) => a.time.getTime() - b.time.getTime());
 
   const liveClass = formattedClasses.find((c: any) => c.isLive);
-  const upcoming = formattedClasses.filter((c: any) => !c.isLive && c.time.getTime() > now - (120 * 60 * 1000));
+  const upcoming = formattedClasses.filter((c: any) => !c.isLive && c.time.getTime() > now - ((c.duration || 60) * 60 * 1000));
 
   return (
     <>

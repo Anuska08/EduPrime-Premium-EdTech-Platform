@@ -1,24 +1,17 @@
 'use client';
 import { useState } from 'react';
+import useSWR from 'swr';
+import api from '@/lib/api';
 import CourseCard from '@/components/CourseCard';
 import MotionSection from '@/components/MotionSection';
 import CTASection from '@/components/CTASection';
-import { Search, SlidersHorizontal, ChevronDown, TrendingUp } from 'lucide-react';
-
-const allCourses = [
-  { id: '1', title: 'Complete JEE Physics Masterclass 2025', instructor: 'Dr. Arvind Kumar', category: 'JEE Preparation', level: 'Advanced' as const, rating: 4.9, reviews: 28400, students: 340000, duration: '220h', price: 4999, originalPrice: 12999, thumbnail: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&auto=format', badge: 'Best Seller' },
-  { id: '2', title: 'UPSC 2025 – Prelims + Mains Complete Strategy', instructor: 'Meera Iyer', category: 'Civil Services', level: 'Intermediate' as const, rating: 4.8, reviews: 15600, students: 180000, duration: '300h', price: 7999, originalPrice: 18999, thumbnail: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&auto=format', badge: 'Trending' },
-  { id: '3', title: 'Python & Data Science Bootcamp', instructor: 'Rahul Mehta', category: 'Technology', level: 'Beginner' as const, rating: 4.7, reviews: 42100, students: 520000, duration: '80h', price: 2999, originalPrice: 8999, thumbnail: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=600&auto=format', badge: 'New' },
-  { id: '4', title: 'Class 12 Mathematics – Board + JEE', instructor: 'Priya Sharma', category: 'School', level: 'Intermediate' as const, rating: 4.8, reviews: 31200, students: 410000, duration: '150h', price: 0, isFree: true, thumbnail: 'https://images.unsplash.com/photo-1596496181848-3091d4878b24?w=600&auto=format' },
-  { id: '5', title: 'NEET Biology 2025 – Complete Preparation', instructor: 'Dr. Sunita Rao', category: 'NEET Preparation', level: 'Advanced' as const, rating: 4.9, reviews: 22000, students: 280000, duration: '200h', price: 5999, originalPrice: 14999, thumbnail: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=600&auto=format', badge: 'Top Rated' },
-  { id: '6', title: 'English Communication & IELTS Mastery', instructor: 'Anita Bose', category: 'Language', level: 'Beginner' as const, rating: 4.6, reviews: 18500, students: 220000, duration: '60h', price: 1999, originalPrice: 5999, thumbnail: 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=600&auto=format' },
-  { id: '7', title: 'Stock Market & Personal Finance 101', instructor: 'Vikram Sood', category: 'Finance', level: 'Beginner' as const, rating: 4.7, reviews: 14200, students: 165000, duration: '45h', price: 0, isFree: true, thumbnail: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format' },
-  { id: '8', title: 'CAT 2025 – Quantitative Ability Deep Dive', instructor: 'Manish Gupta', category: 'MBA', level: 'Advanced' as const, rating: 4.8, reviews: 9800, students: 120000, duration: '100h', price: 3999, originalPrice: 9999, thumbnail: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&auto=format', badge: 'New' },
-];
+import { Search, SlidersHorizontal, ChevronDown, TrendingUp, Loader2 } from 'lucide-react';
 
 const categories = ['All', 'JEE Preparation', 'NEET Preparation', 'Civil Services', 'Technology', 'School', 'MBA', 'Finance', 'Language'];
 const levels = ['All', 'Beginner', 'Intermediate', 'Advanced'];
 const sortOptions = ['Most Popular', 'Highest Rated', 'Newest', 'Price: Low to High', 'Price: High to Low'];
+
+const fetcher = (url: string) => api.get(url).then(res => res.data);
 
 export default function CoursesPage() {
   const [search, setSearch] = useState('');
@@ -27,15 +20,15 @@ export default function CoursesPage() {
   const [sort, setSort] = useState('Most Popular');
   const [priceFilter, setPriceFilter] = useState<'all' | 'free' | 'paid'>('all');
 
-  const filtered = allCourses.filter(c => {
-    const q = search.toLowerCase();
-    if (q && !c.title.toLowerCase().includes(q) && !c.category.toLowerCase().includes(q)) return false;
-    if (category !== 'All' && c.category !== category) return false;
-    if (level !== 'All' && c.level !== level) return false;
-    if (priceFilter === 'free' && !c.isFree) return false;
-    if (priceFilter === 'paid' && c.isFree) return false;
-    return true;
-  });
+  const queryParams = new URLSearchParams();
+  if (search) queryParams.set('search', search);
+  if (category !== 'All') queryParams.set('category', category);
+  if (level !== 'All') queryParams.set('level', level);
+  if (priceFilter !== 'all') queryParams.set('price', priceFilter);
+  if (sort && sort !== 'Most Popular') queryParams.set('sort', sort);
+
+  const { data, isLoading } = useSWR(`/courses?${queryParams.toString()}`, fetcher);
+  const courses = data?.courses || [];
 
   return (
     <>
@@ -90,47 +83,58 @@ export default function CoursesPage() {
         </div>
 
         {/* Price filter chips */}
-        <div className="flex gap-2 mb-8">
+        <div className="flex gap-2 mb-8 items-center">
           {(['all', 'free', 'paid'] as const).map(p => (
             <button key={p} onClick={() => setPriceFilter(p)}
               className={`px-4 py-1.5 rounded-full text-sm capitalize transition-colors ${priceFilter === p ? 'gradient-brand text-white' : 'glass text-[#8080a0] hover:text-white'}`}>
               {p === 'all' ? 'All Courses' : p === 'free' ? '🆓 Free' : '💎 Paid'}
             </button>
           ))}
-          <span className="ml-auto text-sm text-[#6060a0] self-center">{filtered.length} courses</span>
+          {!isLoading && (
+            <span className="ml-auto text-sm text-[#6060a0]">{data?.total || 0} courses found</span>
+          )}
         </div>
 
-        {/* Trending section */}
-        {category === 'All' && !search && (
-          <MotionSection className="mb-10">
-            <div className="flex items-center gap-2 mb-5">
-              <TrendingUp className="w-5 h-5 text-[#8080f0]" />
-              <h2 className="font-cal text-xl font-semibold text-white">Trending This Week</h2>
-            </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center py-20 text-[#6060a0]">
+            <Loader2 className="w-8 h-8 animate-spin" />
+            <span className="ml-3 font-cal text-lg text-white">Loading courses...</span>
+          </div>
+        ) : (
+          <>
+            {/* Trending section */}
+            {category === 'All' && !search && priceFilter === 'all' && level === 'All' && courses.length >= 4 && (
+              <MotionSection className="mb-10">
+                <div className="flex items-center gap-2 mb-5">
+                  <TrendingUp className="w-5 h-5 text-[#8080f0]" />
+                  <h2 className="font-cal text-xl font-semibold text-white">Trending This Week</h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {courses.slice(0, 4).map((c: any, i: number) => (
+                    <MotionSection key={c._id || c.id} delay={i * 0.07}>
+                      <CourseCard {...c} />
+                    </MotionSection>
+                  ))}
+                </div>
+              </MotionSection>
+            )}
+
+            {/* All results */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {allCourses.slice(0, 4).map((c, i) => (
-                <MotionSection key={c.id} delay={i * 0.07}>
+              {courses.map((c: any, i: number) => (
+                <MotionSection key={c._id || c.id} delay={i * 0.05}>
                   <CourseCard {...c} />
                 </MotionSection>
               ))}
             </div>
-          </MotionSection>
-        )}
-
-        {/* All results */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filtered.map((c, i) => (
-            <MotionSection key={c.id} delay={i * 0.05}>
-              <CourseCard {...c} />
-            </MotionSection>
-          ))}
-        </div>
-        {filtered.length === 0 && (
-          <div className="text-center py-20 text-[#6060a0]">
-            <p className="text-4xl mb-4">🔍</p>
-            <p className="font-cal text-xl text-white mb-2">No courses found</p>
-            <p>Try different search terms or reset filters.</p>
-          </div>
+            {courses.length === 0 && (
+              <div className="text-center py-20 text-[#6060a0]">
+                <p className="text-4xl mb-4">🔍</p>
+                <p className="font-cal text-xl text-white mb-2">No courses found</p>
+                <p>Try different search terms or reset filters.</p>
+              </div>
+            )}
+          </>
         )}
 
         {/* CTA */}

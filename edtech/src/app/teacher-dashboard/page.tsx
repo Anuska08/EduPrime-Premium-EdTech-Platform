@@ -36,8 +36,9 @@ interface LiveClass {
 
 // ── Quick Actions ─────────────────────────────────────────────────────────────
 const quickActions = [
-  { label: 'Schedule Live Class', href: '/live-classes', icon: '📡' },
-  { label: 'Add Test / Quiz', href: '/test-series', icon: '📝' },
+  { label: 'Create New Course', href: '/teacher/create-course', icon: '📝' },
+  { label: 'Schedule Live Class', href: '/teacher/schedule-class', icon: '📡' },
+  { label: 'Add Test / Quiz', href: '/teacher/create-test', icon: '📝' },
   { label: 'Browse All Courses', href: '/courses', icon: '📚' },
   { label: 'View Student Dashboard', href: '/dashboard', icon: '📊' },
 ];
@@ -206,10 +207,27 @@ export default function TeacherDashboardPage() {
                 <div className="space-y-3">
                   {upcomingClasses.map((cls) => (
                     <div key={cls._id} className="p-3 rounded-xl bg-white/5 border border-white/8">
-                      <p className="text-white font-medium text-sm">{cls.title || cls.subject}</p>
-                      <p className="text-[#C084FC] text-xs mt-1">{formatDate(cls.scheduledAt)}</p>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-white font-medium text-sm">{cls.title || cls.subject}</p>
+                          <p className="text-[#C084FC] text-xs mt-1">{formatDate(cls.scheduledAt)}</p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const email = window.prompt("Enter student's email to invite:");
+                            if (email) {
+                              api.post(`/live-classes/${cls._id}/invite`, { email })
+                                .then(() => alert(`Invited ${email}`))
+                                .catch(err => alert(err.response?.data?.message || 'Error'));
+                            }
+                          }}
+                          className="bg-white/10 hover:bg-[#C084FC]/20 text-[#c0c0e0] hover:text-white text-[10px] px-2 py-1 rounded-md transition-colors"
+                        >
+                          + Invite
+                        </button>
+                      </div>
                       {cls.duration && (
-                        <p className="text-[#8080a0] text-xs">{cls.duration} min</p>
+                        <p className="text-[#8080a0] text-xs mt-1">{cls.duration} min</p>
                       )}
                       {cls.meetLink && (
                         <a
