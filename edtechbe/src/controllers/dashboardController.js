@@ -32,14 +32,20 @@ const getDashboard = async (req, res, next) => {
       .limit(3)
       .populate('course', 'title thumbnail category totalChapters');
 
-    // Upcoming live classes (next 2)
-    const upcomingClasses = await LiveClass.find({ scheduledAt: { $gte: new Date() } })
+    // User info (email, streak, study hours)
+    const user = await User.findById(userId).select('name email streak totalStudyHours plan badges');
+
+    // Upcoming live classes (next 2) - global or explicitly invited
+    const upcomingClasses = await LiveClass.find({ 
+      scheduledAt: { $gte: new Date() },
+      $or: [
+        { invitedEmails: { $size: 0 } },
+        { invitedEmails: user.email.toLowerCase() }
+      ]
+    })
       .sort({ scheduledAt: 1 })
       .limit(2)
       .populate('instructor', 'name');
-
-    // User info (streak, study hours)
-    const user = await User.findById(userId).select('name streak totalStudyHours plan badges');
 
     res.json({
       success: true,

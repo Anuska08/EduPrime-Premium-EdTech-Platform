@@ -13,6 +13,7 @@ const LiveClassSchema = new mongoose.Schema(
     course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
     isLive: { type: Boolean, default: false },
     maxAttendees: { type: Number, default: 500 },
+    invitedEmails: [{ type: String }],
   },
   { timestamps: true }
 );

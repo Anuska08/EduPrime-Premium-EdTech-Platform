@@ -60,4 +60,30 @@ const deleteLiveClass = async (req, res, next) => {
   }
 };
 
-module.exports = { getLiveClasses, getLiveClass, createLiveClass, deleteLiveClass };
+// @desc   Invite student to live class
+// @route  POST /api/live-classes/:id/invite
+const inviteStudent = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ success: false, message: 'Email is required' });
+
+    const liveClass = await LiveClass.findById(req.params.id);
+    if (!liveClass) return res.status(404).json({ success: false, message: 'Live class not found' });
+    
+    // Only instructor or admin can invite
+    if (liveClass.instructor.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Not authorized to invite students to this class' });
+    }
+
+    if (!liveClass.invitedEmails.includes(email.toLowerCase())) {
+      liveClass.invitedEmails.push(email.toLowerCase());
+      await liveClass.save();
+    }
+    
+    res.json({ success: true, message: `Invited ${email} to class` });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getLiveClasses, getLiveClass, createLiveClass, deleteLiveClass, inviteStudent };
