@@ -35,6 +35,7 @@ app.use('/api/progress', require('./src/routes/progress'));
 app.use('/api/live-classes', require('./src/routes/liveClasses'));
 app.use('/api/tests', require('./src/routes/tests'));
 app.use('/api/dashboard', require('./src/routes/dashboard'));
+app.use('/api/teacher', require('./src/routes/teacher'));
 app.use('/api/contact', require('./src/routes/contact'));
 app.use('/api/subscriptions', require('./src/routes/subscriptions'));
 
