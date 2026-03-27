@@ -1,4 +1,4 @@
-// File: D:\Projects\backend\edtech\src\app\live-classes\page.tsx
+// File: D:\Projects\backend\eduPrime\edtech\src\app\live-classes\page.tsx
 import * as entry from '../../../../src/app/live-classes/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

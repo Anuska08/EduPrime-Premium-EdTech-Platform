@@ -1,8 +1,8 @@
 {
-  "/platform/page": "app/platform/page.js",
-  "/teach/page": "app/teach/page.js",
-  "/industries/page": "app/industries/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
   "/page": "app/page.js",
-  "/resources/page": "app/resources/page.js",
-  "/live-classes/page": "app/live-classes/page.js"
+  "/courses/page": "app/courses/page.js",
+  "/live-classes/page": "app/live-classes/page.js",
+  "/teacher-dashboard/page": "app/teacher-dashboard/page.js",
+  "/signup/page": "app/signup/page.js"
 }
