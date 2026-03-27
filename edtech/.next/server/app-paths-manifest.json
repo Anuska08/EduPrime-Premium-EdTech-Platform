@@ -1,0 +1,8 @@
+{
+  "/platform/page": "app/platform/page.js",
+  "/teach/page": "app/teach/page.js",
+  "/industries/page": "app/industries/page.js",
+  "/page": "app/page.js",
+  "/resources/page": "app/resources/page.js",
+  "/live-classes/page": "app/live-classes/page.js"
+}
